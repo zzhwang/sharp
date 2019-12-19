@@ -7,7 +7,7 @@ import asyncio
 import tornado.ioloop
 from threading import Thread
 
-'''过滤队列类型:默认fifio'''
+'''待过滤队列类型:默认fifio'''
 FIFO_QUEUE = get_redis_queue_cls('fifo')
 
 class Master(object):
@@ -32,7 +32,6 @@ class Master(object):
             for request in spider().start_requests():
                 # 待过滤的队列添加 请求对象
                 self.filter_queue.put(request)
-
 
     def run_filter_queue(self):
         while True:
@@ -116,10 +115,10 @@ class Slave(object):
 class Engine(object):
     '''启动器'''
     def start(self,task):
-        if isinstance(task,Master):
+        if isinstance(task, Master):
             # 主端启动
             task.run()
-        elif isinstance(task,Slave):
+        elif isinstance(task, Slave):
             # 从端启动
             ioloop = tornado.ioloop.IOLoop.current()
             ioloop.run_sync(task.run)
