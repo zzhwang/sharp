@@ -93,7 +93,7 @@ class Slave(object):
                 # 数据保存
                 else:
                     new_result = spider.data_clean(result)
-                    spider.data_save(new_result)
+                    await ioloop.run_in_executor(None, spider.data_save, new_result)
         # 请求失败
         except Exception as e:
             # 标记失败请求（加入redis hash 失败对象）
