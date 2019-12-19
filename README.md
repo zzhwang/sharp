@@ -14,11 +14,11 @@ from Spidersystem.request import Request
 from Spidersystem.spider import BaseSpider
 
 # 配置项目名字，reids配置
-项目名字
+###项目名字
 
 PROJECT_NAME = 'test'
 
-请求管理配置（redis）
+###请求管理配置（redis）
 
 REQUEST_MANAGER_CONFIG = {
 
@@ -32,7 +32,9 @@ REQUEST_MANAGER_CONFIG = {
     
 }
 # 构建爬虫
-'''继承BaseSpider'''
+
+#####继承BaseSpider
+
 class BaiduSpider(BaseSpider):
     
     '''爬虫名字'''
