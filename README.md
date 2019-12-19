@@ -15,11 +15,11 @@ from Spidersystem.spider import BaseSpider
 
 # 配置项目名字，reids配置
 
-  ###项目名字
+  项目名字
 
   PROJECT_NAME = 'test'
 
-  ###请求管理配置（redis）
+  请求管理配置（redis）
 
   REQUEST_MANAGER_CONFIG = {
 
