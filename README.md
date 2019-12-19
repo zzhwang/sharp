@@ -6,7 +6,7 @@
   从端 任务异步爬取，丢失任务进入请求中，失败进入请求失败
 
 # 使用
-# 导入
+### 导入
 from Spidersystem.main import Master,Slave,Engine
 
 from Spidersystem.request import Request
@@ -15,9 +15,11 @@ from Spidersystem.spider import BaseSpider
 
 # 配置项目名字，reids配置
 项目名字
+
 PROJECT_NAME = 'test'
 
 请求管理配置（redis）
+
 REQUEST_MANAGER_CONFIG = {
 
     'queue_type': 'fifo',  # 请求队列的类型
@@ -64,13 +66,13 @@ class BaiduSpider(BaseSpider):
         '''数据保存'''
         pass
         
-  # 启动任务
-  # 爬虫任务
-  spiders = {BaiduSpider.name:BaiduSpider}
-  # 主端启动
-  master = Master(spiders, project_name=PROJECT_NAME, request_manger_config=REQUEST_MANAGER_CONFIG)
-  Engine().start(master)
-  # 从端启动
-  slave = Slave(spiders, project_name=PROJECT_NAME, request_manger_config=REQUEST_MANAGER_CONFIG)
-  Engine().start(slave)
+# 启动任务
+## 爬虫任务
+spiders = {BaiduSpider.name:BaiduSpider}
+# 主端启动
+master = Master(spiders, project_name=PROJECT_NAME, request_manger_config=REQUEST_MANAGER_CONFIG)
+Engine().start(master)
+# 从端启动
+slave = Slave(spiders, project_name=PROJECT_NAME, request_manger_config=REQUEST_MANAGER_CONFIG)
+Engine().start(slave)
   

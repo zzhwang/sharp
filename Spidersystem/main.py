@@ -34,6 +34,7 @@ class Master(object):
                 self.filter_queue.put(request)
 
     def run_filter_queue(self):
+
         while True:
             # 待过滤的队列取出 请求对象
             request = self.filter_queue.get()
