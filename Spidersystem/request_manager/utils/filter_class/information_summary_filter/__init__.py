@@ -68,7 +68,8 @@ class BaseFiltet(object):
         :return:存储结果
         """
         hash_value = self._get_hash_value(data)
-        return self._save(hash_value)
+        self._save(hash_value)
+        return hash_value
 
     def _save(self,hash_value):
         '''

@@ -5,7 +5,7 @@ from urllib.parse import urlparse,parse_qsl,urlencode
 '''
 
 class Request(object):
-    def __init__(self,url,method='get',query={},body={},cookie={},name='porject_name',headers=None):
+    def __init__(self,url,method='get',query={},body={},cookie={},name='porject_name',headers=None,id=None):
         '''
         :param url: url
         :param method: 默认 get
@@ -30,6 +30,8 @@ class Request(object):
 
         self.name = name
         self.headers = headers
+
+        self.id = id  # 请求对象指纹
 
     # 转属性
     @property

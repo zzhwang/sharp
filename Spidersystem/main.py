@@ -2,11 +2,12 @@ from Spidersystem.request_manager.utils import get_redis_queue_cls
 from Spidersystem.downloader import AsyncTornadoDownloader
 from Spidersystem.request import Request
 from Spidersystem.request_manager import RequestManger
+from Spidersystem.request_wactcher import RequestWatcher
 import asyncio
 import tornado.ioloop
 from threading import Thread
 
-# 过滤队列类型
+'''过滤队列类型:默认fifio'''
 FIFO_QUEUE = get_redis_queue_cls('fifo')
 
 class Master(object):
@@ -45,9 +46,6 @@ class Master(object):
         Thread(target=self.run_start_requests).start()
         Thread(target=self.run_filter_queue).start()
 
-
-
-
 class Slave(object):
     def __init__(self,spiders,request_manger_config,project_name):
         # 待过滤的队列
@@ -57,6 +55,10 @@ class Slave(object):
                                        db=0)
         # 请求管理
         self.request_manger = RequestManger(**request_manger_config)
+        # 请求监视
+        self.request_watcher = RequestWatcher(host=request_manger_config['queue_kwargs']['host'],
+                                              port=request_manger_config['queue_kwargs']['port'],
+                                              db=0)
         # 自身下载器
         self.downlodaer = AsyncTornadoDownloader()
         # 自身所有爬虫
@@ -71,23 +73,38 @@ class Slave(object):
         # 请求管理得到请求
         future = ioloop.run_in_executor(None,self.request_manger.get_request,self.project_name)
         request = await future
-        response = await self.downlodaer.fetch(request)
-        # 通过request.name 找到对应的爬虫
-        spider = self.spiders[request.name]()
+        # 放入请求中（redis hash 对象）
+        self.request_watcher.mark_processing_requests(request)
 
-        # 遍历爬虫解析的数据
-        for result in spider.parse(response):
-            if result is None:
-                raise Exception('NOT RETURN NONE')
-            # 返回Request对象
-            # 任务放入线程池执行（待过滤队列添加新的请求）
-            elif isinstance(result, Request):
-                await ioloop.run_in_executor(None,self.filter_queue.put,result)
-            # 返回解析数据
-            # 数据保存
-            else:
-                new_result = spider.data_clean(result)
-                spider.data_save(new_result)
+        # 请求成功 丢失则保存请求中
+        try:
+            response = await self.downlodaer.fetch(request)
+            # 通过request.name 找到对应的爬虫
+            spider = self.spiders[request.name]()
+
+            # 遍历爬虫解析的数据
+            for result in spider.parse(response):
+                if result is None:
+                    raise Exception('NOT RETURN NONE')
+                # 返回Request对象
+                # 任务放入线程池执行（待过滤队列添加新的请求）
+                elif isinstance(result, Request):
+                    await ioloop.run_in_executor(None,self.filter_queue.put,result)
+                # 返回解析数据
+                # 数据保存
+                else:
+                    new_result = spider.data_clean(result)
+                    spider.data_save(new_result)
+        # 请求失败
+        except Exception as e:
+            # 标记失败请求（加入redis hash 失败对象）
+            print('error:{}'.format(e))
+            self.request_watcher.mark_fail_requests(request,str(e))
+            raise
+
+        finally:
+            # 将进行中的request删除
+            self.request_watcher.unmark_processing_requests(request)
 
     async def run(self):
         while True:
@@ -96,8 +113,8 @@ class Slave(object):
                 [(self.handel_request()) for i in range(16)]
             )
 
-# 多态
 class Engine(object):
+    '''启动器'''
     def start(self,task):
         if isinstance(task,Master):
             # 主端启动

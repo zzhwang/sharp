@@ -70,12 +70,16 @@ class RequestManger(object):
         if request_filter.is_exist(request):
             print('发现重复请求:{}'.format(request.url))
         else:
+            # 标记过滤请求
+            fp = request_filter.mark_request(request)
+            request.id = fp
+
             if priority is None:
                 request_queue.put(request)
             else:
                 request_queue.put(priority,request)
-            request_filter.mark_request(request)
             print('添加请求:{}'.format(request.url))
+
 
     def get_request(self,queue_name,block=True):
         request_queue = self._get_request_queue(queue_name)

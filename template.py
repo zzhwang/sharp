@@ -27,6 +27,7 @@ class BaiduSpider(BaseSpider):
         yield Request('http://www.baidu.com/',headers=headers,name=self.name)
         yield Request('https://www.baidu.com/s?wd=tornado4',headers=headers,name=self.name)
         yield Request('https://www.baidu.com/s?wd=tornado8',headers=headers,name=self.name)
+        yield Request('https://www.google.com/search?q=f&oq=f&aqs=chrome..69i57j69i60l3j69i61j69i60.795j0j8&sourceid=chrome&ie=UTF-8',headers=headers,name=self.name)
 
     def parse(self,response):
 

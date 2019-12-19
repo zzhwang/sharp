@@ -19,7 +19,8 @@ class RequestFilter(object):
         :param request_obj: 请求对象
         '''
         data = self.get_request_filter_data(request_obj)
-        self.filter_obj.save(data)
+        fp = self.filter_obj.save(data)
+        return fp
 
     def get_request_filter_data(self,request_obj):
         '''
