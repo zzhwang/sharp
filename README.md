@@ -14,13 +14,14 @@ from Spidersystem.request import Request
 from Spidersystem.spider import BaseSpider
 
 # 配置项目名字，reids配置
-###项目名字
 
-PROJECT_NAME = 'test'
+  ###项目名字
 
-###请求管理配置（redis）
+  PROJECT_NAME = 'test'
 
-REQUEST_MANAGER_CONFIG = {
+  ###请求管理配置（redis）
+
+  REQUEST_MANAGER_CONFIG = {
 
     'queue_type': 'fifo',  # 请求队列的类型
     
@@ -31,6 +32,9 @@ REQUEST_MANAGER_CONFIG = {
     'filter_kwargs': {'redis_key': 'test', 'redis_host': '127.0.0.1'}  # 过滤队列的配置
     
 }
+  
+  #### 请求中与请求失败采用redis hash结构 地址：默认采用请求管理的queue_kwargs参数
+  
 # 构建爬虫
 
 ##### 继承BaseSpider
