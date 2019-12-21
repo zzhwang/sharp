@@ -5,7 +5,7 @@ from urllib.parse import urlparse,parse_qsl,urlencode
 '''
 
 class Request(object):
-    def __init__(self,url,method='get',query={},body={},cookie={},name='porject_name',headers=None,id=None):
+    def __init__(self,url,method='get',query={},body={},cookie={},meta={},name='porject_name',headers=None,id=None):
         '''
         :param url: url
         :param method: 默认 get
@@ -13,6 +13,8 @@ class Request(object):
         :param body: dict
         :param name: 所属项目名称
         :param headers: 请求头
+        :param meta: 向内传入参数
+        :param id: 请求对象指纹 唯一ID
         '''
         self.url = url
         self.method = method
@@ -27,8 +29,14 @@ class Request(object):
 
         if not isinstance(cookie,dict):
             raise Exception('cookie is only dict')
+        self.cookie = cookie
 
-        self.name = name
+        if not isinstance(meta,dict):
+            raise Exception('item is only dict')
+        self.meta = meta
+
+        self.name = name # 传入参数
+
         self.headers = headers
 
         self.id = id  # 请求对象指纹

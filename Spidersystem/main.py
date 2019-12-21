@@ -30,11 +30,12 @@ class Master(object):
         for spider in self.spiders.values():
             # 所有初始 构造的请求对象
             for request in spider().start_requests():
-                # 待过滤的队列添加 请求对象
-                self.filter_queue.put(request)
+                # 有初始请求
+                if request is not None:
+                    # 待过滤的队列添加 请求对象
+                    self.filter_queue.put(request)
 
     def run_filter_queue(self):
-
         while True:
             # 待过滤的队列取出 请求对象
             request = self.filter_queue.get()

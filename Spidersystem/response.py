@@ -15,7 +15,7 @@ class Response(object):
         self.body = body
 
     def lxml(self,rule):
-        html = etree.Html(self.body)
+        html = etree.HTML(self.body)
         return html.xpath(rule)
 
     def select(self,rule):

@@ -14,7 +14,7 @@ class BaseSpider(object):
         初始请求
         :yield: Request对象
         '''
-        yield Request('http://www.example.com',name=self.name)
+        yield
 
     def parse(self,response):
         '''
