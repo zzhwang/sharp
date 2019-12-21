@@ -24,6 +24,7 @@ class BaseSpider(object):
         '''
         yield
 
+
     def data_clean(self,data):
         '''
         数据清洗

@@ -74,6 +74,8 @@ from Spidersystem.spider import BaseSpider
             pass
         
 # 启动任务
+Sleave端执行任务依据 spider.name 去执行解析，储存逻辑。
+
 ## 爬虫任务
 spiders = {BaiduSpider.name:BaiduSpider}
 # 主端启动

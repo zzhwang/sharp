@@ -48,6 +48,7 @@ class BaiduSpider(BaseSpider):
         '''数据保存'''
         pass
 
+
 if __name__ == '__main__':
 
     spiders = {BaiduSpider.name:BaiduSpider}

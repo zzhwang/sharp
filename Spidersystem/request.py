@@ -47,4 +47,3 @@ class Request(object):
         all_query = sorted(set(list(self.query) + url_query))
 
         return url_without_query + '?' + urlencode(all_query) + url_fragment
-
