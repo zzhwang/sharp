@@ -1,11 +1,14 @@
 class RequestManger(object):
     def __init__(
             self,
+            log,
             queue_type='fifo',
             filter_type='redis',
             queue_kwargs={},
             filter_kwargs={}
     ):
+        self.log = log
+
         self._filters = {}  # {过滤器名称：过滤对象}
         self._queues = {}   # {请求队列名称：请求队列对象}
 
@@ -68,7 +71,7 @@ class RequestManger(object):
 
         # 请求对象是否存在
         if request_filter.is_exist(request):
-            print('发现重复请求:{}'.format(request.url))
+            self.log.logger.info('发现重复请求:{}'.format(request.url))
         else:
             # 标记过滤请求
             fp = request_filter.mark_request(request)
@@ -78,8 +81,7 @@ class RequestManger(object):
                 request_queue.put(request)
             else:
                 request_queue.put(priority,request)
-            print('添加请求:{}'.format(request.url))
-
+            self.log.logger.info('添加请求:{}'.format(request.url))
 
     def get_request(self,queue_name,block=True):
         request_queue = self._get_request_queue(queue_name)

@@ -3,6 +3,7 @@ from Spidersystem.downloader import AsyncTornadoDownloader,RequestsDownloader,Ch
 from Spidersystem.request import Request
 from Spidersystem.request_manager import RequestManger
 from Spidersystem.request_wactcher import RequestWatcher
+from Spidersystem.logger import Loggers
 import asyncio
 import tornado.ioloop
 from threading import Thread
@@ -12,13 +13,15 @@ FIFO_QUEUE = get_redis_queue_cls('fifo')
 
 class Master(object):
     def __init__(self,spiders,request_manger_config,project_name):
+        # 日志
+        self.log = Loggers(level='info')
         # 待过滤的队列
         self.filter_queue = FIFO_QUEUE(project_name+'_fifo',
                                        host=request_manger_config['queue_kwargs']['host'],
                                        port=request_manger_config['queue_kwargs']['port'],
                                        db=0)
         # 请求管理
-        self.request_manger = RequestManger(**request_manger_config)
+        self.request_manger = RequestManger(self.log,**request_manger_config)
         # 包含的爬虫
         self.spiders = spiders
         # 项目名字
@@ -34,6 +37,7 @@ class Master(object):
                 if request is not None:
                     # 待过滤的队列添加 请求对象
                     self.filter_queue.put(request)
+                    self.log.logger.info('添加待过滤请求：{}'.format(request.url))
 
     def run_filter_queue(self):
         while True:
@@ -49,26 +53,25 @@ class Master(object):
 
 class Slave(object):
     def __init__(self,spiders,request_manger_config,project_name,downlodaer=AsyncTornadoDownloader()):
+        # 日志
+        self.log = Loggers(level='info')
         # 待过滤的队列
         self.filter_queue = FIFO_QUEUE(project_name+'_fifo',
                                        host=request_manger_config['queue_kwargs']['host'],
                                        port=request_manger_config['queue_kwargs']['port'],
                                        db=0)
         # 请求管理
-        self.request_manger = RequestManger(**request_manger_config)
+        self.request_manger = RequestManger(self.log,**request_manger_config)
         # 请求监视
         self.request_watcher = RequestWatcher(host=request_manger_config['queue_kwargs']['host'],
                                               port=request_manger_config['queue_kwargs']['port'],
                                               db=0)
         # 项目名字
         self.project_name = project_name
-
         # 自身所有爬虫
         self.spiders = spiders
-
         # 自身下载器
         self.downlodaer = downlodaer
-
 
     async def handel_request(self):
         # 获取当前的事件循环
@@ -82,7 +85,7 @@ class Slave(object):
 
         # 请求成功 丢失则保存请求中
         try:
-            print('发送请求：{}'.format(request.url))
+            self.log.logger.info('发送请求：{}'.format(request.url))
             response = await self.downlodaer.fetch(request)
             # 通过request.name 找到对应的爬虫
             spider = self.spiders[request.name]()
@@ -103,12 +106,13 @@ class Slave(object):
         # 请求失败
         except Exception as e:
             # 标记失败请求（加入redis hash 失败对象）
-            print('error:{}'.format(e))
+            self.log.logger.info('error:{}'.format(e))
             self.request_watcher.mark_fail_requests(request,str(e))
             raise
 
         finally:
             # 将进行中的request删除
+            self.log.logger.info('请求删除:{}'.format(request.url))
             self.request_watcher.unmark_processing_requests(request)
 
     async def run(self):
