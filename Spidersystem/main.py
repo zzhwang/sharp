@@ -1,5 +1,5 @@
 from Spidersystem.request_manager.utils import get_redis_queue_cls
-from Spidersystem.downloader import AsyncTornadoDownloader
+from Spidersystem.downloader import AsyncTornadoDownloader,RequestsDownloader,ChromeHeadlessDownloader
 from Spidersystem.request import Request
 from Spidersystem.request_manager import RequestManger
 from Spidersystem.request_wactcher import RequestWatcher
@@ -48,7 +48,7 @@ class Master(object):
         Thread(target=self.run_filter_queue).start()
 
 class Slave(object):
-    def __init__(self,spiders,request_manger_config,project_name):
+    def __init__(self,spiders,request_manger_config,project_name,downlodaer=AsyncTornadoDownloader()):
         # 待过滤的队列
         self.filter_queue = FIFO_QUEUE(project_name+'_fifo',
                                        host=request_manger_config['queue_kwargs']['host'],
@@ -60,12 +60,15 @@ class Slave(object):
         self.request_watcher = RequestWatcher(host=request_manger_config['queue_kwargs']['host'],
                                               port=request_manger_config['queue_kwargs']['port'],
                                               db=0)
-        # 自身下载器
-        self.downlodaer = AsyncTornadoDownloader()
-        # 自身所有爬虫
-        self.spiders = spiders
         # 项目名字
         self.project_name = project_name
+
+        # 自身所有爬虫
+        self.spiders = spiders
+
+        # 自身下载器
+        self.downlodaer = downlodaer
+
 
     async def handel_request(self):
         # 获取当前的事件循环
@@ -79,6 +82,7 @@ class Slave(object):
 
         # 请求成功 丢失则保存请求中
         try:
+            print('发送请求：{}'.format(request.url))
             response = await self.downlodaer.fetch(request)
             # 通过request.name 找到对应的爬虫
             spider = self.spiders[request.name]()

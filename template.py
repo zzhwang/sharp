@@ -80,7 +80,7 @@ if __name__ == '__main__':
     }
 
     master = Master(spiders, project_name=PROJECT_NAME, request_manger_config=REQUEST_MANAGER_CONFIG)
-    slave = Slave(spiders, project_name=PROJECT_NAME, request_manger_config=REQUEST_MANAGER_CONFIG)
-
     Engine().start(master)
+
+    slave = Slave(spiders, project_name=PROJECT_NAME, request_manger_config=REQUEST_MANAGER_CONFIG)
     Engine().start(slave)
