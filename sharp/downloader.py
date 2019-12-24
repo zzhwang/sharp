@@ -2,7 +2,7 @@ import asyncio
 import requests
 from functools import partial
 import tornado.ioloop
-from Spidersystem.response import Response
+from sharp.response import Response
 from tornado.httpclient import HTTPClient,HTTPRequest,AsyncHTTPClient
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities

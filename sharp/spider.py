@@ -1,4 +1,4 @@
-from Spidersystem.request import Request
+from sharp.request import Request
 
 '''
 基类爬虫

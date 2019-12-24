@@ -1,6 +1,6 @@
-from Spidersystem.main import Master,Slave,Engine
-from Spidersystem.request import Request
-from Spidersystem.spider import BaseSpider
+from sharp.main import Master,Slave,Engine
+from sharp.request import Request
+from sharp.spider import BaseSpider
 
 # 项目名字
 PROJECT_NAME = 'test'

@@ -1,4 +1,4 @@
-# SpiderSystem
+# sharp
 基于async tornado redis 实现的分布式爬虫 
 
   主端 数据待爬取队列，过滤队列，请求队列，请求中队列，请求失败队列
@@ -9,11 +9,10 @@
 ##### 列子 template.py
 
 ### 导入
-from Spidersystem.main import Master,Slave,Engine
+from sharp.main import Master,Slave,Engine
+from sharp.request import Request
+from sharp.spider import BaseSpider
 
-from Spidersystem.request import Request
-
-from Spidersystem.spider import BaseSpider
 
 # 配置项目名字，reids配置
 

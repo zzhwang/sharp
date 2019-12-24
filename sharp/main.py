@@ -1,9 +1,9 @@
-from Spidersystem.request_manager.utils import get_redis_queue_cls
-from Spidersystem.downloader import AsyncTornadoDownloader,RequestsDownloader,ChromeHeadlessDownloader
-from Spidersystem.request import Request
-from Spidersystem.request_manager import RequestManger
-from Spidersystem.request_wactcher import RequestWatcher
-from Spidersystem.logger import Loggers
+from sharp.request_manager.utils.redis_tools import get_redis_queue_cls
+from sharp.downloader import AsyncTornadoDownloader,RequestsDownloader,ChromeHeadlessDownloader
+from sharp.request import Request
+from sharp.request_manager import RequestManger
+from sharp.request_wactcher import RequestWatcher
+from sharp.logger import Loggers
 import asyncio
 import tornado.ioloop
 from threading import Thread
@@ -106,7 +106,7 @@ class Slave(object):
         # 请求失败
         except Exception as e:
             # 标记失败请求（加入redis hash 失败对象）
-            self.log.logger.info('error:{}'.format(e))
+            self.log.logger.error('{}'.format(e))
             self.request_watcher.mark_fail_requests(request,str(e))
             raise
 

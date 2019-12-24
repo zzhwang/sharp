@@ -23,7 +23,7 @@ class RequestManger(object):
         return get_redis_queue_cls(filter_type)
 
     def _set_queue_cls(self,queue_type):
-        from Spidersystem.request_manager.utils.redis_tools import get_redis_queue_cls
+        from sharp.request_manager.utils.redis_tools import get_redis_queue_cls
         return get_redis_queue_cls(queue_type)
 
     def _get_request_filter(self,filter_name):
@@ -71,7 +71,7 @@ class RequestManger(object):
 
         # 请求对象是否存在
         if request_filter.is_exist(request):
-            self.log.logger.info('发现重复请求:{}'.format(request.url))
+            self.log.logger.warn('发现重复请求:{}'.format(request.url))
         else:
             # 标记过滤请求
             fp = request_filter.mark_request(request)
