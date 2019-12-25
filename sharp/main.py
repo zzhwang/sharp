@@ -116,11 +116,10 @@ class Slave(object):
                 self.request_watcher.unmark_processing_requests(request)
 
     async def run(self):
-        while True:
-            # 并发16个任务
-            await asyncio.wait(
-                [(self.handel_request()) for i in range(16)]
-            )
+        # 并发16个任务
+        await asyncio.wait(
+            [(self.handel_request()) for i in range(16)]
+        )
 
 class Engine(object):
     '''启动器'''
