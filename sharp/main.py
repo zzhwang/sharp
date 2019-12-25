@@ -74,7 +74,6 @@ class Slave(object):
         self.downlodaer = downlodaer
 
     async def handel_request(self):
-
         while True:
             # 获取当前的事件循环
             ioloop = tornado.ioloop.IOLoop.current()
@@ -117,10 +116,11 @@ class Slave(object):
                 self.request_watcher.unmark_processing_requests(request)
 
     async def run(self):
-        # 并发16个任务
-        await asyncio.wait(
-            [self.handel_request()]
-        )
+        while True:
+            # 并发16个任务
+            await asyncio.wait(
+                [(self.handel_request()) for i in range(16)]
+            )
 
 class Engine(object):
     '''启动器'''

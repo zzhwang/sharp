@@ -8,11 +8,14 @@
 # 安装
 ### pip install sharp-spider
 
+
 # 使用
 ##### 列子 template.py
 
 ### 导入
 from sharp.main import Master,Slave,Engine
+
+from sharp.request import Request
 
 from sharp.request import Request
 
