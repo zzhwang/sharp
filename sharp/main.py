@@ -74,53 +74,53 @@ class Slave(object):
         self.downlodaer = downlodaer
 
     async def handel_request(self):
-        # 获取当前的事件循环
-        ioloop = tornado.ioloop.IOLoop.current()
-        # 任务放入线程池执行
-        # 请求管理得到请求
-        future = ioloop.run_in_executor(None,self.request_manger.get_request,self.project_name)
-        request = await future
-        # 放入请求中（redis hash 对象）
-        self.request_watcher.mark_processing_requests(request)
 
-        # 请求成功 丢失则保存请求中
-        try:
-            self.log.logger.info('发送请求：{}'.format(request.url))
-            response = await self.downlodaer.fetch(request)
-            # 通过request.name 找到对应的爬虫
-            spider = self.spiders[request.name]()
+        while True:
+            # 获取当前的事件循环
+            ioloop = tornado.ioloop.IOLoop.current()
+            # 任务放入线程池执行
+            # 请求管理得到请求
+            future = ioloop.run_in_executor(None,self.request_manger.get_request,self.project_name)
+            request = await future
+            # 放入请求中（redis hash 对象）
+            self.request_watcher.mark_processing_requests(request)
 
-            # 遍历爬虫解析的数据
-            for result in spider.parse(response):
-                if result is None:
-                    raise Exception('NOT RETURN NONE')
-                # 返回Request对象
-                # 任务放入线程池执行（待过滤队列添加新的请求）
-                elif isinstance(result, Request):
-                    await ioloop.run_in_executor(None,self.filter_queue.put,result)
-                # 返回解析数据
-                # 数据保存
-                else:
-                    new_result = spider.data_clean(result)
-                    await ioloop.run_in_executor(None, spider.data_save, new_result)
-        # 请求失败
-        except Exception as e:
-            # 标记失败请求（加入redis hash 失败对象）
-            self.log.logger.error('{}'.format(e))
-            self.request_watcher.mark_fail_requests(request,str(e))
-            raise
+            # 请求成功 丢失则保存请求中
+            try:
+                self.log.logger.info('发送请求：{}'.format(request.url))
+                response = await self.downlodaer.fetch(request)
+                # 通过request.name 找到对应的爬虫
+                spider = self.spiders[request.name]()
 
-        finally:
-            # 将进行中的request删除
-            self.log.logger.info('请求删除:{}'.format(request.url))
-            self.request_watcher.unmark_processing_requests(request)
+                # 遍历爬虫解析的数据
+                for result in spider.parse(response):
+                    if result is None:
+                        raise Exception('NOT RETURN NONE')
+                    # 返回Request对象
+                    # 任务放入线程池执行（待过滤队列添加新的请求）
+                    elif isinstance(result, Request):
+                        await ioloop.run_in_executor(None,self.filter_queue.put,result)
+                    # 返回解析数据
+                    # 数据保存
+                    else:
+                        new_result = spider.data_clean(result)
+                        await ioloop.run_in_executor(None, spider.data_save, new_result)
+            # 请求失败
+            except Exception as e:
+                # 标记失败请求（加入redis hash 失败对象）
+                self.log.logger.error('{}'.format(e))
+                self.request_watcher.mark_fail_requests(request,str(e))
+
+            finally:
+                # 将进行中的request删除
+                self.log.logger.info('请求删除:{}'.format(request.url))
+                self.request_watcher.unmark_processing_requests(request)
 
     async def run(self):
-        while True:
-            # 并发16个任务
-            await asyncio.wait(
-                [(self.handel_request()) for i in range(16)]
-            )
+        # 并发16个任务
+        await asyncio.wait(
+            [self.handel_request()]
+        )
 
 class Engine(object):
     '''启动器'''
