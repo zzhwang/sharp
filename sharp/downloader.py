@@ -49,7 +49,7 @@ class AsyncTornadoDownloader(object):
         tornado_request = HTTPRequest(request.url_with_query,
                                       method=request.method.upper(),
                                       headers=request.headers,
-                                      validate_cert=False)
+                                      validate_cert=False,)
 
         tornado_response = await self.async_http_clint.fetch(tornado_request)
 
